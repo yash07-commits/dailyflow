@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DailyFlow</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -14,7 +14,7 @@
                 extend: {
                     fontFamily: {
                         'heading': ['Montserrat', 'sans-serif'],
-                        'body': ['Poppins', 'sans-serif'],
+                        'body': ['DM Sans', 'Poppins', 'sans-serif'],
                     },
                     colors: {
                         gray: {
@@ -28,53 +28,55 @@
     </script>
 </head>
 <body class="bg-gray-50 min-h-screen font-body text-gray-900 antialiased">
-    <!-- Fixed Header - Exactly 100px with Send Button -->
+    <!-- Fixed Header - 100px - REFINED -->
     <header class="fixed top-0 left-0 right-0 h-[100px] bg-white border-b border-gray-200 z-50 flex items-center px-8 shadow-sm">
         <div class="flex-1">
-            <h1 class="text-3xl md:text-4xl font-heading font-black text-gray-900">DailyFlow</h1>
+            <h1 class="text-3xl md:text-4xl font-heading font-black text-gray-900 tracking-tight">DailyFlow</h1>
         </div>
         
-        <!-- Send Report Button -->
-        <button id="sendReportBtn" class="bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-black shadow-md transition-all duration-200 mr-6 font-body flex items-center space-x-2">
+        <!-- Time Box (First) -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 mr-4 text-[14px] font-medium font-body">
+            <div id="currentTime" class="font-semibold text-gray-900">--:-- --</div>
+        </div>
+        
+        <!-- Date Box (Second) -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 mr-6 text-[14px] font-medium font-body">
+            <div id="currentDate" class="text-gray-700">-- -- --</div>
+        </div>
+        
+        <!-- Send Button - FAR RIGHT -->
+        <button id="sendReportBtn" class="bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-black shadow-md transition-all duration-200 ml-auto font-body flex items-center space-x-2">
             <span>📤</span>
             <span>Send Report Now</span>
         </button>
-        
-        <!-- Status Area -->
-        <div class="flex items-center space-x-6 text-lg font-medium">
-            <div id="currentDate" class="text-gray-700"></div>
-            <div class="text-gray-900 font-semibold" id="currentTime">--:-- --</div>
-            <div id="statusIcon" class="text-2xl ml-2">⏰</div>
-            <div id="statusText" class="font-semibold">Outside Hours</div>
-        </div>
     </header>
 
-    <!-- Centered Main Content -->
+    <!-- Main Content - 10% margins, centered -->
     <main class="pt-[100px] min-h-screen flex items-center justify-center px-[10vw] pb-12">
         <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 h-fit">
-            <!-- New Entry Card -->
+            <!-- New Entry Card with Auto-Bullets -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 lg:p-12 flex flex-col">
-                <h2 class="text-3xl lg:text-4xl font-heading font-bold text-gray-900 mb-8 text-center">New Entry</h2>
+                <h2 class="text-3xl lg:text-4xl font-heading font-bold text-gray-900 mb-8 text-center uppercase tracking-tight">New Entry</h2>
                 <form id="entryForm" class="space-y-6 flex-1 flex flex-col">
                     <div class="flex-1">
-                        <label class="block text-xl font-semibold text-gray-800 mb-3 font-body">Project Name</label>
-                        <input type="text" id="projectName" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-600 text-lg font-medium shadow-sm transition-all" placeholder="Enter project name">
+                        <label class="block text-xl font-semibold font-body text-gray-800 mb-3 uppercase tracking-wide text-sm">Project Name</label>
+                        <input type="text" id="projectName" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-600 text-lg font-medium font-body shadow-sm transition-all tracking-wide" placeholder="Enter project name">
                     </div>
                     <div class="flex-1">
-                        <label class="block text-xl font-semibold text-gray-800 mb-3 font-body">Work Done Today</label>
-                        <textarea id="workDone" required rows="8" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-600 text-lg font-medium shadow-sm transition-all resize-none" placeholder="Describe what you accomplished today..."></textarea>
+                        <label class="block text-xl font-semibold font-body text-gray-800 mb-3 uppercase tracking-wide text-sm">Work Done Today</label>
+                        <textarea id="workDone" required rows="8" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-600 text-lg font-medium font-body shadow-sm transition-all resize-none tracking-wide" placeholder="Type your work details... (Enter adds • bullet)"></textarea>
                     </div>
-                    <button type="submit" class="mt-auto bg-gray-900 text-white py-4 px-8 rounded-xl text-xl font-semibold shadow-lg hover:bg-black hover:shadow-xl transition-all duration-200 font-body uppercase tracking-wide">
+                    <button type="submit" class="mt-auto bg-gray-900 text-white py-4 px-8 rounded-xl text-xl font-semibold font-body uppercase tracking-wider shadow-lg hover:bg-black hover:shadow-xl transition-all duration-200">
                         Save Entry
                     </button>
                 </form>
             </div>
 
-            <!-- Today's Entries Card -->
+            <!-- Entries List with Edit/Delete -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 lg:p-12 flex flex-col overflow-hidden">
-                <h2 class="text-3xl lg:text-4xl font-heading font-bold text-gray-900 mb-8 text-center">Today's Entries</h2>
+                <h2 class="text-3xl lg:text-4xl font-heading font-bold text-gray-900 mb-8 text-center uppercase tracking-tight">Today's Entries</h2>
                 <div id="entriesList" class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar min-h-0"></div>
-                <div id="noEntries" class="flex-1 flex items-center justify-center text-gray-500 text-xl hidden">
+                <div id="noEntries" class="flex-1 flex items-center justify-center text-gray-500 text-xl hidden font-body tracking-wide">
                     <div class="text-center">
                         <div class="text-6xl mb-4">📝</div>
                         No entries yet today
@@ -85,93 +87,68 @@
     </main>
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        .edit-mode .entry-text { 
+            border: 2px solid #e5e7eb; 
+            border-radius: 0.5rem; 
+            padding: 0.5rem; 
+            background: #f9fafb;
+            min-height: 80px;
+            font-family: inherit;
+            resize: vertical;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
+        .edit-mode .entry-actions { display: none; }
+        .edit-mode .edit-save { display: flex; gap: 0.5rem; }
     </style>
 
     <script>
         $(document).ready(function() {
-            // EmailJS v4 - LATEST SDK
+            // EmailJS v4
             const EMAILJS_PUBLIC_KEY = 'JkACUrFip5XezGL4f';
             const EMAILJS_SERVICE_ID = 'service_f8p5ykr';
             const EMAILJS_TEMPLATE_ID = 'template_03mdv2n';
             const TO_EMAIL = 'rewa.yash1234@gmail.com';
 
-            console.log('=== DailyFlow EmailJS Debug ===');
-            console.log('Public Key:', EMAILJS_PUBLIC_KEY);
-            console.log('Service ID:', EMAILJS_SERVICE_ID);
-            console.log('Template ID:', EMAILJS_TEMPLATE_ID);
-            console.log('To Email:', TO_EMAIL);
+            console.log('DailyFlow - Edit + Auto-Bullets + Oswald');
             
-            // v4 Init format
             emailjs.init({
                 publicKey: EMAILJS_PUBLIC_KEY,
             });
-            
-            console.log('EmailJS v4 initialized successfully');
 
             const CURRENT_USER = 'user1';
             let reportSentToday = false;
+            let editingIndex = -1;
 
-            // Header updates
+            // Header
             function updateHeader() {
                 const now = new Date();
                 
                 $('#currentDate').text(now.toLocaleDateString('en-IN', { 
-                    weekday: 'short', 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric' 
+                    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' 
                 }));
                 
                 const time12hr = now.toLocaleTimeString('en-IN', { 
-                    hour: 'numeric', 
-                    minute: '2-digit', 
-                    hour12: true 
+                    hour: 'numeric', minute: '2-digit', hour12: true 
                 });
                 $('#currentTime').text(time12hr);
-                
-                const hour = now.getHours();
-                const isWorkingHours = hour >= 10 && hour < 19;
-                const statusIcon = isWorkingHours ? '✅' : '⏰';
-                const statusText = isWorkingHours ? 'Active' : 'Outside Hours';
-                
-                $('#statusIcon').text(statusIcon);
-                $('#statusText').text(statusText).toggleClass('text-green-600 text-gray-600', isWorkingHours);
             }
 
-            // Manual send button with enhanced debugging
-            $('#sendReportBtn').on('click', async function() {
-                const btn = $(this);
-                const originalText = btn.html();
-                
-                btn.prop('disabled', true).html('<span class="mr-1">⏳</span>Sending...');
-                console.log('Manual button clicked');
-                
-                try {
-                    const result = await sendDailyReport();
-                    console.log("Email Sent Successfully", result);
-                    alert('✅ Report sent successfully!');
-                } catch (error) {
-                    console.error("Email Failed", error);
-                    console.error('Status:', error.status);
-                    console.error('Status Text:', error.statusText);
-                    console.error('Full Error:', error);
-                    alert(`❌ Send failed. Check console for details.\nError: ${error.text || error.message || 'Unknown'}`);
-                } finally {
-                    btn.prop('disabled', false).html(originalText);
+            // Auto-bullet textarea
+            $('#workDone').on('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    const newValue = value.substring(0, start) + '• ' + value.substring(end);
+                    this.value = newValue;
+                    this.selectionStart = this.selectionEnd = start + 2;
                 }
             });
 
-            // Entries management
+            // Load entries
             function loadEntries() {
                 const today = new Date().toISOString().split('T')[0];
                 const key = `${CURRENT_USER}_${today}`;
@@ -194,19 +171,81 @@
                 
                 entries.forEach((entry, index) => {
                     list.append(`
-                        <div class="group bg-gray-50 p-6 rounded-xl border border-gray-200 hover:bg-white hover:shadow-md transition-all duration-200">
-                            <div class="flex justify-between items-start mb-3">
-                                <h4 class="text-xl font-semibold text-gray-900">${entry.project}</h4>
-                                <span class="text-sm text-gray-500 font-medium">${entry.time}</span>
+                        <div class="entry-item group bg-gray-50 p-6 rounded-xl border border-gray-200 hover:bg-white hover:shadow-md transition-all duration-200" data-index="${index}">
+                            <div class="entry-content">
+                                <div class="flex justify-between items-start mb-3">
+                                    <h4 class="text-xl font-semibold font-body text-gray-900 uppercase tracking-wide">${entry.project}</h4>
+                                    <span class="text-sm text-gray-500 font-body tracking-wide">${entry.time}</span>
+                                </div>
+                                <div class="entry-text text-gray-700 leading-relaxed mb-4">${entry.work.replace(/\n/g, '<br>')}</div>
                             </div>
-                            <p class="text-gray-700 leading-relaxed mb-4">${entry.work}</p>
-                            <button onclick="deleteEntry(${index});event.stopPropagation();" 
-                                    class="group-hover:opacity-100 opacity-70 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap">
-                                Delete
-                            </button>
+                            <div class="entry-actions flex space-x-2 mt-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editEntry(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium font-body uppercase tracking-wide transition-all">
+                                    Edit
+                                </button>
+                                <button onclick="deleteEntry(${index});event.stopPropagation();" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium font-body uppercase tracking-wide transition-all">
+                                    Delete
+                                </button>
+                            </div>
+                            <div class="edit-save hidden flex space-x-2 mt-4">
+                                <button onclick="saveEdit(${index})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium font-body uppercase tracking-wide transition-all flex-1">
+                                    Save
+                                </button>
+                                <button onclick="cancelEdit()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium font-body uppercase tracking-wide transition-all">
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     `);
                 });
+            }
+
+            // Edit functions
+            window.editEntry = function(index) {
+                editingIndex = index;
+                const projectInput = $('#projectName');
+                const workTextarea = $('#workDone');
+                
+                const today = new Date().toISOString().split('T')[0];
+                const key = `${CURRENT_USER}_${today}`;
+                const entries = JSON.parse(localStorage.getItem(key) || '[]');
+                const entry = entries[index];
+                
+                projectInput.val(entry.project);
+                workTextarea.val(entry.work);
+                
+                // Scroll to form and focus
+                $('html, body').animate({scrollTop: $('.entry-item[data-index="' + index + '"]').offset().top - 100}, 500);
+                projectInput.focus();
+            }
+
+            window.saveEdit = function(index) {
+                const project = $('#projectName').val().trim();
+                const work = $('#workDone').val().trim();
+                
+                if (!project || !work) {
+                    alert('Please fill all fields');
+                    return;
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                const key = `${CURRENT_USER}_${today}`;
+                let entries = JSON.parse(localStorage.getItem(key) || '[]');
+                
+                entries[index] = {
+                    project,
+                    work,
+                    time: entries[index].time // Keep original time
+                };
+                
+                localStorage.setItem(key, JSON.stringify(entries));
+                loadEntries();
+                cancelEdit();
+            }
+
+            window.cancelEdit = function() {
+                editingIndex = -1;
+                $('#projectName, #workDone').val('');
             }
 
             window.deleteEntry = function(index) {
@@ -220,9 +259,15 @@
                 }
             }
 
-            // Form submit
+            // Form submit - Check if editing
             $('#entryForm').on('submit', function(e) {
                 e.preventDefault();
+                
+                if (editingIndex >= 0) {
+                    saveEdit(editingIndex);
+                    return;
+                }
+                
                 const project = $('#projectName').val().trim();
                 const work = $('#workDone').val().trim();
                 
@@ -249,12 +294,12 @@
                 loadEntries();
             });
 
-            // EmailJS v4 Report - Promise-based with full debugging
+            // EmailJS + Manual Report
             async function sendDailyReport() {
-                console.log('=== sendDailyReport START ===');
+                console.log('📧 sendDailyReport triggered');
                 
                 if (reportSentToday) {
-                    console.log('Report already sent today - skipping');
+                    console.log('Already sent today');
                     return;
                 }
                 
@@ -275,56 +320,49 @@ User 2:
 ${user2Entries.map(e => `• ${e.project}: ${e.work} (${e.time})`).join('\n') || 'No entries'}`;
 
                 const templateParams = {
-                    report_data: report_data,
+                    report_data,
                     report_date: todayStr,
                     to_email: TO_EMAIL
                 };
 
-                console.log('Template Params Preview:', {
-                    report_data: report_data.substring(0, 200) + '...',
-                    report_date: todayStr,
-                    to_email: TO_EMAIL
-                });
-
                 try {
                     const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-                    console.log("Email Sent Successfully", response);
+                    console.log('✅ Success:', response);
                     reportSentToday = true;
                     return response;
                 } catch (error) {
-                    console.error("Email Failed", error);
-                    console.error('Service ID:', EMAILJS_SERVICE_ID);
-                    console.error('Template ID:', EMAILJS_TEMPLATE_ID);
-                    console.error('Status:', error.status);
-                    console.error('Status Text:', error.statusText);
-                    console.error('Error Text:', error.text);
+                    console.error('❌ Error:', error);
                     throw error;
-                } finally {
-                    console.log('=== sendDailyReport END ===');
                 }
             }
+
+            $('#sendReportBtn').on('click', async function() {
+                const btn = $(this);
+                const original = btn.html();
+                btn.prop('disabled', true).html('⏳ Sending...');
+                
+                try {
+                    await sendDailyReport();
+                    alert('✅ Report sent!');
+                } catch (e) {
+                    alert('❌ Failed - check console');
+                } finally {
+                    btn.prop('disabled', false).html(original);
+                }
+            });
 
             function checkReportTime() {
                 const now = new Date();
-                const hour = now.getHours();
-                const minute = now.getMinutes();
-                if (hour === 18 && minute === 40) {
-                    console.log('Auto-trigger time reached');
-                    sendDailyReport().catch(console.error);
-                }
-                if (hour === 0 && minute === 0) {
-                    reportSentToday = false;
-                    console.log('Daily flag reset');
-                }
+                const h = now.getHours(), m = now.getMinutes();
+                if (h === 18 && m === 40) sendDailyReport().catch(console.error);
+                if (h === 0 && m === 0) reportSentToday = false;
             }
 
-            // Initialize app
+            // Init
             updateHeader();
             loadEntries();
             setInterval(updateHeader, 1000);
             setInterval(checkReportTime, 60000);
-            
-            console.log('DailyFlow fully loaded and ready');
         });
     </script>
 </body>
