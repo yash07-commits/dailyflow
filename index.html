@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyFlow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'heading': ['Montserrat', 'sans-serif'],
+                        'body': ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        gray: {
+                            50: '#f8f9fa',
+                            900: '#1a1a1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen font-body text-gray-900 antialiased">
+    <!-- Fixed Header - Exactly 100px with Send Button -->
+    <header class="fixed top-0 left-0 right-0 h-[100px] bg-white border-b border-gray-200 z-50 flex items-center px-8 shadow-sm">
+        <div class="flex-1">
+            <h1 class="text-3xl md:text-4xl font-heading font-black text-gray-900">DailyFlow</h1>
+        </div>
+        
+        <!-- Send Report Button -->
+        <button id="sendReportBtn" class="bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-black shadow-md transition-all duration-200 mr-6 font-body flex items-center space-x-2">
+            <span>📤</span>
+            <span>Send Report Now</span>
+        </button>
+        
+        <!-- Status Area -->
+        <div class="flex items-center space-x-6 text-lg font-medium">
+            <div id="currentDate" class="text-gray-700"></div>
+            <div class="text-gray-900 font-semibold" id="currentTime">--:-- --</div>
+            <div id="statusIcon" class="text-2xl ml-2">⏰</div>
+            <div id="statusText" class="font-semibold">Outside Hours</div>
+        </div>
+    </header>
+
+    <!-- Centered Main Content -->
+    <main class="pt-[100px] min-h-screen flex items-center justify-center px-[10vw] pb-12">
+        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 h-fit">
+            <!-- New Entry Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 lg:p-12 flex flex-col">
+                <h2 class="text-3xl lg:text-4xl font-heading font-bold text-gray-900 mb-8 text-center">New Entry</h2>
+                <form id="entryForm" class="space-y-6 flex-1 flex flex-col">
+                    <div class="flex-1">
+                        <label class="block text-xl font-semibold text-gray-800 mb-3 font-body">Project Name</label>
+                        <input type="text" id="projectName" required class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-600 text-lg font-medium shadow-sm transition-all" placeholder="Enter project name">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xl font-semibold text-gray-800 mb-3 font-body">Work Done Today</label>
+                        <textarea id="workDone" required rows="8" class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-600 text-lg font-medium shadow-sm transition-all resize-none" placeholder="Describe what you accomplished today..."></textarea>
+                    </div>
+                    <button type="submit" class="mt-auto bg-gray-900 text-white py-4 px-8 rounded-xl text-xl font-semibold shadow-lg hover:bg-black hover:shadow-xl transition-all duration-200 font-body uppercase tracking-wide">
+                        Save Entry
+                    </button>
+                </form>
+            </div>
+
+            <!-- Today's Entries Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 lg:p-12 flex flex-col overflow-hidden">
+                <h2 class="text-3xl lg:text-4xl font-heading font-bold text-gray-900 mb-8 text-center">Today's Entries</h2>
+                <div id="entriesList" class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar min-h-0"></div>
+                <div id="noEntries" class="flex-1 flex items-center justify-center text-gray-500 text-xl hidden">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">📝</div>
+                        No entries yet today
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            // EmailJS LIVE CONFIG - Keys verified
+            const EMAILJS_PUBLIC_KEY = 'JkACUrFip5XezGL4f';
+            const EMAILJS_SERVICE_ID = 'service_f8p5ykr';
+            const EMAILJS_TEMPLATE_ID = 'template_03mdv2n';
+            const TO_EMAIL = 'rewa.yash1234@gmail.com';
+
+            console.log('EmailJS Config:', {EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, TO_EMAIL});
+            
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+            console.log('EmailJS initialized');
+
+            const CURRENT_USER = 'user1';
+            let reportSentToday = false;
+
+            // Header updates (12hr time)
+            function updateHeader() {
+                const now = new Date();
+                
+                $('#currentDate').text(now.toLocaleDateString('en-IN', { 
+                    weekday: 'short', 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                }));
+                
+                const time12hr = now.toLocaleTimeString('en-IN', { 
+                    hour: 'numeric', 
+                    minute: '2-digit', 
+                    hour12: true 
+                });
+                $('#currentTime').text(time12hr);
+                
+                const hour = now.getHours();
+                const isWorkingHours = hour >= 10 && hour < 19;
+                const statusIcon = isWorkingHours ? '✅' : '⏰';
+                const statusText = isWorkingHours ? 'Active' : 'Outside Hours';
+                
+                $('#statusIcon').text(statusIcon);
+                $('#statusText').text(statusText).toggleClass('text-green-600 text-gray-600', isWorkingHours);
+            }
+
+            // Manual send button with loading and error logging
+            $('#sendReportBtn').on('click', async function() {
+                const btn = $(this);
+                const originalText = btn.html();
+                
+                btn.prop('disabled', true).html('<span class="mr-1">⏳</span>Sending...');
+                
+                try {
+                    await sendDailyReport();
+                    alert('✅ Report sent successfully!');
+                } catch (error) {
+                    console.error('Manual Send Error Details:', error);
+                    alert(`❌ Send failed: ${error.text || error.message || 'Unknown error'}`);
+                } finally {
+                    btn.prop('disabled', false).html(originalText);
+                }
+            });
+
+            // Entries management
+            function loadEntries() {
+                const today = new Date().toISOString().split('T')[0];
+                const key = `${CURRENT_USER}_${today}`;
+                const entries = JSON.parse(localStorage.getItem(key) || '[]');
+                displayEntries(entries);
+            }
+
+            function displayEntries(entries) {
+                const list = $('#entriesList');
+                const noEntries = $('#noEntries');
+                
+                if (entries.length === 0) {
+                    list.empty();
+                    noEntries.removeClass('hidden');
+                    return;
+                }
+                
+                noEntries.addClass('hidden');
+                list.empty().addClass('custom-scrollbar');
+                
+                entries.forEach((entry, index) => {
+                    list.append(`
+                        <div class="group bg-gray-50 p-6 rounded-xl border border-gray-200 hover:bg-white hover:shadow-md transition-all duration-200">
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-xl font-semibold text-gray-900">${entry.project}</h4>
+                                <span class="text-sm text-gray-500 font-medium">${entry.time}</span>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed mb-4">${entry.work}</p>
+                            <button onclick="deleteEntry(${index});event.stopPropagation();" 
+                                    class="group-hover:opacity-100 opacity-70 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap">
+                                Delete
+                            </button>
+                        </div>
+                    `);
+                });
+            }
+
+            window.deleteEntry = function(index) {
+                if (confirm('Delete this entry?')) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const key = `${CURRENT_USER}_${today}`;
+                    let entries = JSON.parse(localStorage.getItem(key) || '[]');
+                    entries.splice(index, 1);
+                    localStorage.setItem(key, JSON.stringify(entries));
+                    loadEntries();
+                }
+            }
+
+            // Form submit
+            $('#entryForm').on('submit', function(e) {
+                e.preventDefault();
+                const project = $('#projectName').val().trim();
+                const work = $('#workDone').val().trim();
+                
+                if (!project || !work) {
+                    alert('Please fill all fields');
+                    return;
+                }
+
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-IN', { 
+                    hour: 'numeric', 
+                    minute: '2-digit', 
+                    hour12: true 
+                });
+                const today = now.toISOString().split('T')[0];
+                const key = `${CURRENT_USER}_${today}`;
+                
+                const entry = { project, work, time: timeString };
+                let entries = JSON.parse(localStorage.getItem(key) || '[]');
+                entries.push(entry);
+                localStorage.setItem(key, JSON.stringify(entries));
+
+                $('#projectName, #workDone').val('');
+                loadEntries();
+            });
+
+            // EmailJS report - Enhanced logging
+            async function sendDailyReport() {
+                console.log('sendDailyReport called');
+                
+                if (reportSentToday) {
+                    console.log('Report already sent today');
+                    return;
+                }
+                
+                const today = new Date().toISOString().split('T')[0];
+                const todayStr = new Date().toLocaleDateString('en-IN');
+                const key1 = `user1_${today}`;
+                const key2 = `user2_${today}`;
+                
+                let user1Entries = JSON.parse(localStorage.getItem(key1) || '[]');
+                let user2Entries = JSON.parse(localStorage.getItem(key2) || '[]');
+
+                const report_data = `DailyFlow Report - ${todayStr}
+
+User 1:
+${user1Entries.map(e => `• ${e.project}: ${e.work} (${e.time})`).join('\n') || 'No entries'}
+
+User 2:
+${user2Entries.map(e => `• ${e.project}: ${e.work} (${e.time})`).join('\n') || 'No entries'}`;
+
+                console.log('Sending EmailJS with params:', {report_data: report_data.substring(0, 100) + '...', report_date: todayStr, to_email: TO_EMAIL});
+
+                try {
+                    const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                        report_data: report_data,
+                        report_date: todayStr,
+                        to_email: TO_EMAIL
+                    });
+                    console.log('EmailJS Success:', result);
+                    reportSentToday = true;
+                } catch (error) {
+                    console.error('EmailJS Full Error:', error);
+                    console.error('Error status:', error.status);
+                    console.error('Error statusText:', error.statusText);
+                    console.error('Error text:', error.text);
+                    throw error;
+                }
+            }
+
+            function checkReportTime() {
+                const now = new Date();
+                const hour = now.getHours();
+                const minute = now.getMinutes();
+                if (hour === 18 && minute === 40) {
+                    sendDailyReport();
+                }
+                if (hour === 0 && minute === 0) reportSentToday = false;
+            }
+
+            // Initialize
+            updateHeader();
+            loadEntries();
+            setInterval(updateHeader, 1000);
+            setInterval(checkReportTime, 60000);
+        });
+    </script>
+</body>
+</html>
