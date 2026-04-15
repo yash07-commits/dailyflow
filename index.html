@@ -6,7 +6,7 @@
     <title>DailyFlow</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         tailwind.config = {
@@ -99,21 +99,29 @@
 
     <script>
         $(document).ready(function() {
-            // EmailJS LIVE CONFIG - Keys verified
+            // EmailJS v4 - LATEST SDK
             const EMAILJS_PUBLIC_KEY = 'JkACUrFip5XezGL4f';
             const EMAILJS_SERVICE_ID = 'service_f8p5ykr';
             const EMAILJS_TEMPLATE_ID = 'template_03mdv2n';
             const TO_EMAIL = 'rewa.yash1234@gmail.com';
 
-            console.log('EmailJS Config:', {EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, TO_EMAIL});
+            console.log('=== DailyFlow EmailJS Debug ===');
+            console.log('Public Key:', EMAILJS_PUBLIC_KEY);
+            console.log('Service ID:', EMAILJS_SERVICE_ID);
+            console.log('Template ID:', EMAILJS_TEMPLATE_ID);
+            console.log('To Email:', TO_EMAIL);
             
-            emailjs.init(EMAILJS_PUBLIC_KEY);
-            console.log('EmailJS initialized');
+            // v4 Init format
+            emailjs.init({
+                publicKey: EMAILJS_PUBLIC_KEY,
+            });
+            
+            console.log('EmailJS v4 initialized successfully');
 
             const CURRENT_USER = 'user1';
             let reportSentToday = false;
 
-            // Header updates (12hr time)
+            // Header updates
             function updateHeader() {
                 const now = new Date();
                 
@@ -140,19 +148,24 @@
                 $('#statusText').text(statusText).toggleClass('text-green-600 text-gray-600', isWorkingHours);
             }
 
-            // Manual send button with loading and error logging
+            // Manual send button with enhanced debugging
             $('#sendReportBtn').on('click', async function() {
                 const btn = $(this);
                 const originalText = btn.html();
                 
                 btn.prop('disabled', true).html('<span class="mr-1">⏳</span>Sending...');
+                console.log('Manual button clicked');
                 
                 try {
-                    await sendDailyReport();
+                    const result = await sendDailyReport();
+                    console.log("Email Sent Successfully", result);
                     alert('✅ Report sent successfully!');
                 } catch (error) {
-                    console.error('Manual Send Error Details:', error);
-                    alert(`❌ Send failed: ${error.text || error.message || 'Unknown error'}`);
+                    console.error("Email Failed", error);
+                    console.error('Status:', error.status);
+                    console.error('Status Text:', error.statusText);
+                    console.error('Full Error:', error);
+                    alert(`❌ Send failed. Check console for details.\nError: ${error.text || error.message || 'Unknown'}`);
                 } finally {
                     btn.prop('disabled', false).html(originalText);
                 }
@@ -236,12 +249,12 @@
                 loadEntries();
             });
 
-            // EmailJS report - Enhanced logging
+            // EmailJS v4 Report - Promise-based with full debugging
             async function sendDailyReport() {
-                console.log('sendDailyReport called');
+                console.log('=== sendDailyReport START ===');
                 
                 if (reportSentToday) {
-                    console.log('Report already sent today');
+                    console.log('Report already sent today - skipping');
                     return;
                 }
                 
@@ -261,22 +274,33 @@ ${user1Entries.map(e => `• ${e.project}: ${e.work} (${e.time})`).join('\n') ||
 User 2:
 ${user2Entries.map(e => `• ${e.project}: ${e.work} (${e.time})`).join('\n') || 'No entries'}`;
 
-                console.log('Sending EmailJS with params:', {report_data: report_data.substring(0, 100) + '...', report_date: todayStr, to_email: TO_EMAIL});
+                const templateParams = {
+                    report_data: report_data,
+                    report_date: todayStr,
+                    to_email: TO_EMAIL
+                };
+
+                console.log('Template Params Preview:', {
+                    report_data: report_data.substring(0, 200) + '...',
+                    report_date: todayStr,
+                    to_email: TO_EMAIL
+                });
 
                 try {
-                    const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                        report_data: report_data,
-                        report_date: todayStr,
-                        to_email: TO_EMAIL
-                    });
-                    console.log('EmailJS Success:', result);
+                    const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                    console.log("Email Sent Successfully", response);
                     reportSentToday = true;
+                    return response;
                 } catch (error) {
-                    console.error('EmailJS Full Error:', error);
-                    console.error('Error status:', error.status);
-                    console.error('Error statusText:', error.statusText);
-                    console.error('Error text:', error.text);
+                    console.error("Email Failed", error);
+                    console.error('Service ID:', EMAILJS_SERVICE_ID);
+                    console.error('Template ID:', EMAILJS_TEMPLATE_ID);
+                    console.error('Status:', error.status);
+                    console.error('Status Text:', error.statusText);
+                    console.error('Error Text:', error.text);
                     throw error;
+                } finally {
+                    console.log('=== sendDailyReport END ===');
                 }
             }
 
@@ -285,16 +309,22 @@ ${user2Entries.map(e => `• ${e.project}: ${e.work} (${e.time})`).join('\n') ||
                 const hour = now.getHours();
                 const minute = now.getMinutes();
                 if (hour === 18 && minute === 40) {
-                    sendDailyReport();
+                    console.log('Auto-trigger time reached');
+                    sendDailyReport().catch(console.error);
                 }
-                if (hour === 0 && minute === 0) reportSentToday = false;
+                if (hour === 0 && minute === 0) {
+                    reportSentToday = false;
+                    console.log('Daily flag reset');
+                }
             }
 
-            // Initialize
+            // Initialize app
             updateHeader();
             loadEntries();
             setInterval(updateHeader, 1000);
             setInterval(checkReportTime, 60000);
+            
+            console.log('DailyFlow fully loaded and ready');
         });
     </script>
 </body>
